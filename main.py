@@ -3,7 +3,7 @@ import pandas
 import sqlite3
 import json
 import numpy
-import matplotlib
+import matplotlib.pyplot as plot
 import statistics
 from pprint import pprint
 
@@ -18,16 +18,35 @@ def calcstddev(stockhistory):
 def calcgmean(stockhistory):
     return statistics.geometric_mean(stockhistory["Open"])
 
+def calcexpectedreturn(stockhistory):
+    #calculate daily return
+    stockhistory['Return']=stockhistory['Close'].pct_change()
+    #calculate average daily return
+    expectedreturn_daily = stockhistory['Return'].mean()
+    #convert to yearly assuming 252 trading days
+    expectedreturn_yearly = expectedreturn_daily *252
+    return expectedreturn_yearly
+
 def main():
     dow_data = json.load(open("DOW.json","r"))
     #msftticker = yfinance.Ticker(dow_data[0])
-    #pprint(getstockhistory(msftticker))
+    #s = getstockhistory(msftticker)
+    #print(calcexpectedreturn(s))
+    stddevs = []
+    expectedreturns = []
     for ticker in dow_data:
         stock = yfinance.Ticker(ticker)
         historicaldata = (getstockhistory(stock))
         stddev = calcstddev(historicaldata)
-        gmean = calcgmean(historicaldata)
-        print("Symbol: ", stock.info.get("symbol"), " StandardDev: ", stddev,"Geo Mean: ", gmean)
-
+        stddevs.append(stddev)
+        expectedreturn = calcexpectedreturn(historicaldata)
+        expectedreturns.append(expectedreturn)
+        print("Symbol: ", stock.info.get("symbol"), " StandardDev: ", stddev,"Expected Return: ", expectedreturn)
+    plot.scatter(stddevs, expectedreturns)
+    plot.ylabel("Expected Return")
+    plot.xlabel("Standard Deviation")
+    for i, ticker in enumerate(dow_data):
+        plot.annotate(ticker, (stddevs[i],expectedreturns[i]))
+    plot.show()
 if __name__ == "__main__":
     main()
