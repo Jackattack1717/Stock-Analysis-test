@@ -48,5 +48,6 @@ def main():
     for i, ticker in enumerate(dow_data):
         plot.annotate(ticker, (stddevs[i],expectedreturns[i]))
     plot.show()
+
 if __name__ == "__main__":
     main()
