@@ -27,11 +27,26 @@ def calcexpectedreturn(stockhistory):
     expectedreturn_yearly = expectedreturn_daily *252
     return expectedreturn_yearly
 
+def calcsharperatio(standarddev, expectedreturn):
+    return expectedreturn/standarddev
+
 def main():
     dow_data = json.load(open("DOW.json","r"))
     #msftticker = yfinance.Ticker(dow_data[0])
     #s = getstockhistory(msftticker)
-    #print(calcexpectedreturn(s))
+    #print(calcexpectedreturn(s)) 
+    stock_data = []
+    for ticker in dow_data:
+        stock=yfinance.Ticker(ticker)
+        stock_hist = getstockhistory(stock)
+        stddev = calcstddev(stock_hist)
+        exprtn = calcexpectedreturn(stock_hist)
+        sharperatio = float(calcsharperatio(stddev,exprtn))
+        stock_data.append([ticker,sharperatio])
+    print("Stocks in order of how efficient they are")
+    stock_data.sort(key=lambda x: x[1], reverse=True)
+    pprint(stock_data)
+    """
     stddevs = []
     expectedreturns = []
     for ticker in dow_data:
@@ -41,13 +56,15 @@ def main():
         stddevs.append(stddev)
         expectedreturn = calcexpectedreturn(historicaldata)
         expectedreturns.append(expectedreturn)
-        print("Symbol: ", stock.info.get("symbol"), " StandardDev: ", stddev,"Expected Return: ", expectedreturn)
+        sharperatio = calcsharperatio(stddev, expectedreturn)
+        print("Symbol: ", stock.info.get("symbol"), " StandardDev: ", stddev,"Expected Return: ", expectedreturn," Sharpe Ratio: ", sharperatio)
     plot.scatter(stddevs, expectedreturns)
     plot.ylabel("Expected Return")
     plot.xlabel("Standard Deviation")
     for i, ticker in enumerate(dow_data):
         plot.annotate(ticker, (stddevs[i],expectedreturns[i]))
     plot.show()
+    """
 
 if __name__ == "__main__":
     main()
