@@ -1,6 +1,5 @@
 import yfinance
 import pandas
-import sqlite3
 import json
 import numpy
 import matplotlib.pyplot as plot
@@ -46,7 +45,6 @@ def main():
     print("Stocks in order of how efficient they are")
     stock_data.sort(key=lambda x: x[1], reverse=True)
     pprint(stock_data)
-    """
     stddevs = []
     expectedreturns = []
     for ticker in dow_data:
@@ -64,7 +62,6 @@ def main():
     for i, ticker in enumerate(dow_data):
         plot.annotate(ticker, (stddevs[i],expectedreturns[i]))
     plot.show()
-    """
 
 if __name__ == "__main__":
     main()
